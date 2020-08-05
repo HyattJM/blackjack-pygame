@@ -13,9 +13,6 @@ class Deck:
     ''' contains settings for images and values of cards '''
 
     def __init__(self):
-        # values are assigned to their position in the created deck
-        # ace is at position 0, deal with it in play.calculate_hands
-        self.values = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
         # 0: clubs 1: diamonds  2: hearts 3: spades
         self.cards = {0: {}, 1: {}, 2: {}, 3: {}}
 
@@ -32,11 +29,20 @@ class Play:
     ''' object to handle the main game being played '''
 
     def __init__(self):
+
+        # hands
         self.player_hand = []
         self.dealer_hand = []
+
         # totals
         self.player_total = 0
         self.dealer_total = 0
+
+        # values are assigned to their position in the created deck
+        # ace is at position 0, deal with it in play.calculate_hands
+        self.values = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
+
+        # gui
         self.player_text = "Player: "
         self.dealer_text = "Dealer: "
         self.player_text_x = 135
@@ -47,18 +53,19 @@ class Play:
         # action
         self.player = True
 
-    def get_card(self, hand, total, number=1):
+    def get_card(self, hand, number=1):
         for get_card in range(number):
             suit, card = randint(0, 3), randint(1, 13)
             hand.append(game.deck.cards[suit][card])
+            self.calculate_hands(self.player_hand, self.player_total)
+
+    def calculate_hands(self, hand, total):
+        pass
 
     def player_action(self):
         pass
 
     def dealer_action(self):
-        pass
-
-    def calculate_hands(self):
         pass
 
     def display_hands(self):
@@ -73,15 +80,15 @@ class Play:
             game.screen.blit(self.player_hand[card], (x, y))
             x += 40
             y += 15
-
         # totals
-        game.screen.blit(game.render_font(self.player_text + str(self.player_total)), (self.player_text_x, self.player_text_y))
-        game.screen.blit(game.render_font(self.dealer_text + str(self.dealer_total)), (self.dealer_text_x, self.dealer_text_y))
-
+        game.screen.blit(game.render_font(
+            self.player_text + str(self.player_total)), (self.player_text_x, self.player_text_y))
+        game.screen.blit(game.render_font(
+            self.dealer_text + str(self.dealer_total)), (self.dealer_text_x, self.dealer_text_y))
 
     def initialise(self):
-        self.get_card(self.player_hand, self.player_total, 2)
-        self.get_card(self.dealer_hand, self.dealer_total, 1)
+        self.get_card(self.player_hand, 2)
+        self.get_card(self.dealer_hand, 1)
 
     def loop(self):
         self.display_hands()
@@ -140,45 +147,45 @@ class Game:
 
     # handle any player key presses
     def get_input(self):
-        event = pygame.event.wait()
-        if event.type == pygame.QUIT:
-            pygame.quit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
 
-        if event.type == pygame.KEYDOWN:
-            # back to main menu
-            if event.key == pygame.K_ESCAPE:
-                if not self.main_menu:
-                    self.main_menu = True
-                    self.new_game = False
-                    self.how_to_play = False
-                    play.reset()
-
-            # main menu
-            if self.main_menu:
-                if event.key == pygame.K_DOWN:
-                    if self.menu_selector_y < 580:
-                        self.menu_selector_y += 45
-                if event.key == pygame.K_UP:
-                    if self.menu_selector_y > 490:
-                        self.menu_selector_y -= 45
-
-                if event.key == pygame.K_RETURN:
-                    if self.menu_selector_y == 490:
-                        self.main_menu = False
-                        self.new_game = True
-                        self.how_to_play = False
-                        play.initialise()
-                    if self.menu_selector_y == 535:
-                        self.main_menu = False
+            if event.type == pygame.KEYDOWN:
+                # back to main menu
+                if event.key == pygame.K_ESCAPE:
+                    if not self.main_menu:
+                        self.main_menu = True
                         self.new_game = False
-                        self.how_to_play = True
-                    if self.menu_selector_y == 580:
-                        pygame.quit()
-                        sys.exit("Thanks for playing!")
+                        self.how_to_play = False
+                        play.reset()
 
-            # new game
-            if self.new_game:
-                pass
+                # main menu
+                if self.main_menu:
+                    if event.key == pygame.K_DOWN:
+                        if self.menu_selector_y < 580:
+                            self.menu_selector_y += 45
+                    if event.key == pygame.K_UP:
+                        if self.menu_selector_y > 490:
+                            self.menu_selector_y -= 45
+
+                    if event.key == pygame.K_RETURN:
+                        if self.menu_selector_y == 490:
+                            self.main_menu = False
+                            self.new_game = True
+                            self.how_to_play = False
+                            play.initialise()
+                        if self.menu_selector_y == 535:
+                            self.main_menu = False
+                            self.new_game = False
+                            self.how_to_play = True
+                        if self.menu_selector_y == 580:
+                            pygame.quit()
+                            sys.exit("Thanks for playing!")
+
+                # new game
+                if self.new_game:
+                    pass
 
     # render all game objects
     def render(self):
@@ -226,7 +233,6 @@ class Game:
 
             if self.new_game:
                 play.loop()
-
 
             pygame.display.flip()
 
