@@ -5,7 +5,9 @@ import pygame
 from pygame.locals import *
 from random import randint, shuffle
 
-from settings import *
+# constants
+WINDOW_SIZE = WIDTH, HEIGHT = 1200, 960
+TILE_WIDTH, TILE_HEIGHT = 360, 504
 
 
 class Deck:
@@ -39,13 +41,13 @@ class Game:
         # text and settings for main menu
         self.main_menu = True
         self.menu_text = {
-            "title": self.font.render('Blackjack', True, (255, 255, 255)),
-            "divider": self.font.render('---------', True, (255, 255, 255)),
-            "new_game": self.font.render('New Game', True, (255, 255, 255)),
-            "how_to_play": self.font.render('How to play', True, (255, 255, 255)),
-            "exit": self.font.render('Exit Game', True, (255, 255, 255)),
+            0: "Blackjack",
+            1: " ",
+            2: "New Game",
+            3: "How to play",
+            4: "Exit Game",
         }
-        self.menu_selector = self.font.render('>', True, (255, 255, 255))
+        self.menu_selector = '>'
         self.menu_selector_x = 475
         self.menu_selector_y = 490
 
@@ -53,19 +55,20 @@ class Game:
         self.how_to_play = False
         self.how_to_play_text = {
             0: "How to play Blackjack - simplified",
-            1: "---------------------------------",
-            2: " ",
-            3: "Beat the dealer's hand without going over 21.",
-            4: "'23465789' worth face value. 'JQK' = 10, 'A' = 1, 11.",
+            1: " ",
+            2: "Beat the dealer's hand without going over 21.",
+            3: "'23465789' are worth their face value.",
+            4: "'JQK' = 10, 'A' = 1, 11 depending on best hand.",
             5: "Each player starts with two cards.",
             6: "HIT gets another card, STAND keeps the hand you have.",
             7: "If you go over 21 you BUST, and the dealer wins.",
             8: "2 card total of 21 equals BLACKJACK.",
-            10: "Dealer plays until their cards total 17 or higher.",
+            9: "Dealer plays until their cards total 17 or higher.",
         }
 
         # new game
         self.new_game = False
+        self.game_gui = None
 
     def get_input(self):
         event = pygame.event.wait()
@@ -107,21 +110,34 @@ class Game:
         if self.main_menu:
             menu_text_x, menu_text_y = 500, 400
             for text in self.menu_text:
-                self.screen.blit(
-                    self.menu_text[text], (menu_text_x, menu_text_y))
+                self.screen.blit(self.render_font(
+                    self.menu_text[text]), (menu_text_x, menu_text_y))
                 menu_text_y += 45
-            self.screen.blit(self.menu_selector,
+            self.screen.blit(self.render_font(self.menu_selector),
                              (self.menu_selector_x, self.menu_selector_y))
 
         # render how to play
         if self.how_to_play:
             x, y = 45, 45
             for text in self.how_to_play_text:
-                self.screen.blit(self.render_font(self.how_to_play_text[text]), (x, y))
+                self.screen.blit(self.render_font(
+                    self.how_to_play_text[text]), (x, y))
                 y += 45
 
+            x, y = 45, 500
+            for suit in range(0, 2):
+                for card in self.deck.cards[suit]:
+                    self.screen.blit(self.deck.cards[suit][card], (x, y))
+                    x += 40
+            x, y = 45, 600
+            for suit in range(2, 4):
+                for card in self.deck.cards[suit]:
+                    self.screen.blit(self.deck.cards[suit][card], (x, y))
+                    x += 40
+
+
     def render_font(self, text):
-        text_to_render=self.font.render(text, True, (255, 255, 255))
+        text_to_render = self.font.render(text, True, (255, 255, 255))
         return text_to_render
 
     def loop(self):
@@ -135,5 +151,5 @@ class Game:
 
 
 if __name__ == "__main__":
-    game=Game()
+    game = Game()
     game.loop()
