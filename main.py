@@ -75,8 +75,10 @@ class Play:
             hand.append(game.deck.cards[suit][card])
 
     def calculate_hands(self, hand, total):
+        total = 0
         for card in range(len(hand)):
             total += hand[card].value
+        return total
 
     def player_action(self):
         pass
@@ -105,11 +107,11 @@ class Play:
     def initialise(self):
         self.get_card(self.player_hand, 2)
         self.get_card(self.dealer_hand, 1)
-        self.calculate_hands(self.player_hand, self.player_total)
-        self.calculate_hands(self.dealer_hand, self.dealer_total)
 
     def loop(self):
+        game.get_input()
         self.display_hands()
+        pygame.display.flip()
 
     def reset(self):
         # reset game to 0
@@ -203,7 +205,8 @@ class Game:
 
                 # new game
                 if self.new_game:
-                    pass
+                    if event.key == pygame.K_UP:
+                        play.get_card(play.player_hand)
 
     # render all game objects
     def render(self):
@@ -228,12 +231,12 @@ class Game:
             x, y = 45, 500
             for suit in range(0, 2):
                 for card in self.deck.cards[suit]:
-                    self.screen.blit(self.deck.cards[suit][card], (x, y))
+                    self.screen.blit(self.deck.cards[suit][card].image, (x, y))
                     x += 40
             x, y = 45, 600
             for suit in range(2, 4):
                 for card in self.deck.cards[suit]:
-                    self.screen.blit(self.deck.cards[suit][card], (x, y))
+                    self.screen.blit(self.deck.cards[suit][card].image, (x, y))
                     x += 40
 
     # function that will render font to blit
