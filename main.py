@@ -9,20 +9,40 @@ from random import randint, shuffle
 WINDOW_SIZE = WIDTH, HEIGHT = 1200, 960
 
 
+class Card:
+    ''' settings for a card object - image, value '''
+
+    def __init__(self, image, value):
+        self.image = image
+        self.value = value
+
+    def is_ace(self, total):
+        if total < 11:
+            total += 11
+        else:
+            total += 1
+
+
 class Deck:
     ''' contains settings for images and values of cards '''
 
     def __init__(self):
         # 0: clubs 1: diamonds  2: hearts 3: spades
         self.cards = {0: {}, 1: {}, 2: {}, 3: {}}
+        # values are assigned to their position in the created deck
+        # ace is at position 0, deal with it in play.calculate_hands
+        self.values = [False, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
 
     def create(self):
         suits = ["Clubs ", "Diamond ", "Hearts ", "Spades "]
         # populate self cards with the appropriate images
         for suit in range(4):
             for card in range(1, 14):
-                self.cards[suit][card] = pygame.image.load(
-                    'assets/' + str(suits[suit]) + str(card) + '.png')
+                self.cards[suit][card] = Card(
+                    pygame.image.load(
+                        'assets/' + str(suits[suit]) + str(card) + '.png'),
+                    self.values[card - 1]
+                )
 
 
 class Play:
@@ -37,10 +57,6 @@ class Play:
         # totals
         self.player_total = 0
         self.dealer_total = 0
-
-        # values are assigned to their position in the created deck
-        # ace is at position 0, deal with it in play.calculate_hands
-        self.values = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
 
         # gui
         self.player_text = "Player: "
@@ -57,10 +73,10 @@ class Play:
         for get_card in range(number):
             suit, card = randint(0, 3), randint(1, 13)
             hand.append(game.deck.cards[suit][card])
-            self.calculate_hands(self.player_hand, self.player_total)
 
     def calculate_hands(self, hand, total):
-        pass
+        for card in range(len(hand)):
+            total += hand[card].value
 
     def player_action(self):
         pass
@@ -72,12 +88,12 @@ class Play:
         # cards
         x, y = 500, 200
         for card in range(len(self.dealer_hand)):
-            game.screen.blit(self.dealer_hand[card], (x, y))
+            game.screen.blit(self.dealer_hand[card].image, (x, y))
             x += 40
             y += 15
         x, y = 500, 390
         for card in range(len(self.player_hand)):
-            game.screen.blit(self.player_hand[card], (x, y))
+            game.screen.blit(self.player_hand[card].image, (x, y))
             x += 40
             y += 15
         # totals
@@ -89,6 +105,8 @@ class Play:
     def initialise(self):
         self.get_card(self.player_hand, 2)
         self.get_card(self.dealer_hand, 1)
+        self.calculate_hands(self.player_hand, self.player_total)
+        self.calculate_hands(self.dealer_hand, self.dealer_total)
 
     def loop(self):
         self.display_hands()
