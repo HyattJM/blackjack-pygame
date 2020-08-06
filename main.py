@@ -45,18 +45,23 @@ class Deck:
                 )
 
 
+class Total:
+    ''' holds totals and updates to screen '''
+
+    def __init__(self):
+        self.total = 0
+
+    def update(self, value):
+        self.total += value
+
+
 class Play:
     ''' object to handle the main game being played '''
 
     def __init__(self):
-
         # hands
         self.player_hand = []
         self.dealer_hand = []
-
-        # totals
-        self.player_total = 0
-        self.dealer_total = 0
 
         # gui
         self.player_text = "Player: "
@@ -73,12 +78,20 @@ class Play:
         for get_card in range(number):
             suit, card = randint(0, 3), randint(1, 13)
             hand.append(game.deck.cards[suit][card])
+        self.calculate_hands(self.player_hand, player)
+        self.calculate_hands(self.dealer_hand, dealer)
 
     def calculate_hands(self, hand, total):
-        total = 0
+        total.total = 0
         for card in range(len(hand)):
-            total += hand[card].value
-        return total
+            # aces
+            if not hand[card].value:
+                if total.total < 11:
+                    total.total += 11
+                else:
+                    total.total += 1
+            # other cards
+            total.total += hand[card].value
 
     def player_action(self):
         pass
@@ -100,9 +113,9 @@ class Play:
             y += 15
         # totals
         game.screen.blit(game.render_font(
-            self.player_text + str(self.player_total)), (self.player_text_x, self.player_text_y))
+            self.player_text + str(player.total)), (self.player_text_x, self.player_text_y))
         game.screen.blit(game.render_font(
-            self.dealer_text + str(self.dealer_total)), (self.dealer_text_x, self.dealer_text_y))
+            self.dealer_text + str(dealer.total)), (self.dealer_text_x, self.dealer_text_y))
 
     def initialise(self):
         self.get_card(self.player_hand, 2)
@@ -117,8 +130,8 @@ class Play:
         # reset game to 0
         self.player_hand = []
         self.dealer_hand = []
-        self.player_total = 0
-        self.dealer_total = 0
+        player.total = 0
+        dealer.total = 0
 
 
 class Game:
@@ -207,6 +220,8 @@ class Game:
                 if self.new_game:
                     if event.key == pygame.K_UP:
                         play.get_card(play.player_hand)
+                    if event.key == pygame.K_DOWN:
+                        play.reset()
 
     # render all game objects
     def render(self):
@@ -261,4 +276,6 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     play = Play()
+    player = Total()
+    dealer = Total()
     game.loop()
