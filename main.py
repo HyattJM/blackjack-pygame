@@ -50,7 +50,6 @@ class Total:
 
     def __init__(self):
         self.total = 0
-        self.bust = False
 
     def update(self, value):
         self.total += value
@@ -71,10 +70,21 @@ class Play:
         self.player_text_y = 435
         self.dealer_text_x = 135
         self.dealer_text_y = 235
+        self.display_keys = [
+            pygame.image.load("assets/KeyboardButtonsDir_up.png"),
+            pygame.image.load("assets/KeyboardButtonsDir_down.png"),
+            pygame.image.load("assets/KeyboardButtonsDir_left.png"),
+            pygame.image.load("assets/KeyboardButtonsDir_right.png"),
+        ]
+        self.display_keys_text = {
+            0: "Hit",
+            1: "New Game",
+            2: "Stay",
+            3: "Null",
+        }
 
         # action
         self.player = True
-        self.player_bust = False
 
     def get_card(self, hand, number=1):
         for get_card in range(number):
@@ -97,6 +107,10 @@ class Play:
         while dealer.total < 17:
             self.get_card(self.dealer_hand)
 
+    def player_stay(self):
+        self.player = False
+        self.dealer_action()
+
     def display_hands(self):
         # cards
         x, y = 500, 200
@@ -115,13 +129,26 @@ class Play:
         game.screen.blit(game.render_font(
             self.dealer_text + str(dealer.total)), (self.dealer_text_x, self.dealer_text_y))
 
+    def display_gui(self):
+        x, y = 45, 690
+        for key in range(len(self.display_keys)):
+            game.screen.blit(self.display_keys[key], (x, y)
+                             )
+            y += 55
+        x, y = 105, 695
+        for text in self.display_keys_text:
+            game.screen.blit(game.render_font(
+                self.display_keys_text[text]), (x, y)
+            )
+            y += 55
+
     def initialise(self):
         self.get_card(self.player_hand, 2)
         self.get_card(self.dealer_hand, 1)
-        self.dealer_action()
 
     def loop(self):
         game.get_input()
+        self.display_gui()
         self.display_hands()
         pygame.display.flip()
 
@@ -131,6 +158,7 @@ class Play:
         self.dealer_hand = []
         player.total = 0
         dealer.total = 0
+        self.player = True
         self.initialise()
 
 
@@ -222,6 +250,8 @@ class Game:
                         play.get_card(play.player_hand)
                     if event.key == pygame.K_DOWN:
                         play.reset()
+                    if event.key == pygame.K_RIGHT:
+                        play.player_stay()
 
     # render all game objects
     def render(self):
