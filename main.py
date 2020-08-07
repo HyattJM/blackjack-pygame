@@ -50,6 +50,7 @@ class Total:
 
     def __init__(self):
         self.total = 0
+        self.bust = False
 
     def update(self, value):
         self.total += value
@@ -73,6 +74,7 @@ class Play:
 
         # action
         self.player = True
+        self.player_bust = False
 
     def get_card(self, hand, number=1):
         for get_card in range(number):
@@ -84,20 +86,16 @@ class Play:
     def calculate_hands(self, hand, total):
         total.total = 0
         for card in range(len(hand)):
+            # cards
+            if hand[card].value:
+                total.total += hand[card].value
             # aces
-            if not hand[card].value:
-                if total.total < 11:
-                    total.total += 11
-                else:
-                    total.total += 1
-            # other cards
-            total.total += hand[card].value
-
-    def player_action(self):
-        pass
+            else:
+                pass
 
     def dealer_action(self):
-        pass
+        while dealer.total < 17:
+            self.get_card(self.dealer_hand)
 
     def display_hands(self):
         # cards
@@ -120,6 +118,7 @@ class Play:
     def initialise(self):
         self.get_card(self.player_hand, 2)
         self.get_card(self.dealer_hand, 1)
+        self.dealer_action()
 
     def loop(self):
         game.get_input()
@@ -132,6 +131,7 @@ class Play:
         self.dealer_hand = []
         player.total = 0
         dealer.total = 0
+        self.initialise()
 
 
 class Game:
