@@ -3,7 +3,7 @@ import os
 import sys
 import pygame
 from pygame.locals import *
-from random import randint, shuffle
+from random import randint
 
 # constants
 WINDOW_SIZE = WIDTH, HEIGHT = 1200, 960
@@ -245,7 +245,6 @@ class Game:
                         self.main_menu = True
                         self.new_game = False
                         self.how_to_play = False
-                        play.reset()
 
                 # main menu
                 if self.main_menu:
@@ -261,7 +260,7 @@ class Game:
                             self.main_menu = False
                             self.new_game = True
                             self.how_to_play = False
-                            play.initialise()
+                            play.reset()
                         if self.menu_selector_y == 535:
                             self.main_menu = False
                             self.new_game = False
