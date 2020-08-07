@@ -17,10 +17,10 @@ class Card:
         self.value = value
 
     def is_ace(self, total):
-        if total < 11:
-            total += 11
+        if total.total < 11:
+            total.total += 11
         else:
-            total += 1
+            total.total += 1
 
 
 class Deck:
@@ -73,18 +73,32 @@ class Play:
         self.display_keys = [
             pygame.image.load("assets/KeyboardButtonsDir_up.png"),
             pygame.image.load("assets/KeyboardButtonsDir_down.png"),
-            pygame.image.load("assets/KeyboardButtonsDir_left.png"),
             pygame.image.load("assets/KeyboardButtonsDir_right.png"),
         ]
         self.display_keys_text = {
             0: "Hit",
-            1: "New Game",
-            2: "Stay",
-            3: "Null",
+            1: "Stay",
+            2: "New Game",
+        }
+        self.message_log = [" ", " ", " ", " ", ]
+        self.message_log_text = {
+            0: "Player wins",
+            1: "Dealer wins",
+            2: "Game is a tie",
+            3: "Player stays",
+            4: "Player busts",
+            5: "Dealer busts",
+            6: "Player hits"
+        }
+        self.strategies_text = {
+            0: "It is recommended that you hit",
+            1: "It is recommended that you stay"
         }
 
         # action
         self.player = True
+
+    # calcualations and actions
 
     def get_card(self, hand, number=1):
         for get_card in range(number):
@@ -101,15 +115,17 @@ class Play:
                 total.total += hand[card].value
             # aces
             else:
-                pass
+                hand[card].is_ace(total)
+
+    def player_stay(self):
+        self.player = False
+        self.dealer_action()
 
     def dealer_action(self):
         while dealer.total < 17:
             self.get_card(self.dealer_hand)
 
-    def player_stay(self):
-        self.player = False
-        self.dealer_action()
+    # gui
 
     def display_hands(self):
         # cards
@@ -135,12 +151,21 @@ class Play:
             game.screen.blit(self.display_keys[key], (x, y)
                              )
             y += 55
+
         x, y = 105, 695
         for text in self.display_keys_text:
             game.screen.blit(game.render_font(
                 self.display_keys_text[text]), (x, y)
             )
             y += 55
+
+        x, y = 350, 695
+        for message in range(len(self.message_log)):
+            game.screen.blit(game.render_font(
+                self.message_log[message]), (x, y))
+            y += 55
+
+    # initialisation and loop
 
     def initialise(self):
         self.get_card(self.player_hand, 2)
@@ -158,6 +183,7 @@ class Play:
         self.dealer_hand = []
         player.total = 0
         dealer.total = 0
+        self.message_log = [" ", " ", " ", " ", ]
         self.player = True
         self.initialise()
 
@@ -248,10 +274,14 @@ class Game:
                 if self.new_game:
                     if event.key == pygame.K_UP:
                         play.get_card(play.player_hand)
+                        play.message_log.insert(0, play.message_log_text[6])
+                        play.message_log.pop()
                     if event.key == pygame.K_DOWN:
-                        play.reset()
-                    if event.key == pygame.K_RIGHT:
                         play.player_stay()
+                        play.message_log.insert(0, play.message_log_text[3])
+                        play.message_log.pop()
+                    if event.key == pygame.K_RIGHT:
+                        play.reset()
 
     # render all game objects
     def render(self):
