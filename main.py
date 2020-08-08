@@ -83,20 +83,17 @@ class Play:
         self.message_log = [" ", " ", " ", " ", ]
         self.message_log_text = {
             0: "Player wins",
-            1: "Dealer wins",
+            1: "Dealer wins, game over",
             2: "Game is a tie",
             3: "Player stays",
-            4: "Player busts",
-            5: "Dealer busts",
+            4: "Player busts, game over",
+            5: "Dealer busts, Player wins",
             6: "Player hits"
-        }
-        self.strategies_text = {
-            0: "It is recommended that you hit",
-            1: "It is recommended that you stay"
         }
 
         # action
         self.player = True
+        self.game_over = False
 
     # calcualations and actions
 
@@ -117,6 +114,32 @@ class Play:
             else:
                 hand[card].is_ace(total)
 
+        # player bust
+        if hand == self.player_hand and player.total > 21:
+            self.player_bust()
+        if self.game_over:
+            # dealer bust
+            if hand == self.dealer_hand and dealer.total > 21:
+                play.message_log.insert(0, play.message_log_text[5])
+                play.message_log.pop()
+            # tie
+            if hand == self.dealer_hand and player.total == dealer.total:
+                play.message_log.insert(0, play.message_log_text[2])
+                play.message_log.pop()
+            # player win
+            elif hand == self.dealer_hand and player.total > dealer.total:
+                play.message_log.insert(0, play.message_log_text[0])
+                play.message_log.pop()
+                # dealer win
+            elif hand == self.dealer_hand and dealer.total > player.total and dealer.total <= 21:
+                play.message_log.insert(0, play.message_log_text[1])
+                play.message_log.pop()
+
+    def player_bust(self):
+        self.player = False
+        play.message_log.insert(0, play.message_log_text[4])
+        play.message_log.pop()
+
     def player_stay(self):
         self.player = False
         self.dealer_action()
@@ -124,6 +147,9 @@ class Play:
     def dealer_action(self):
         while dealer.total < 17:
             self.get_card(self.dealer_hand)
+        self.game_over = True
+        self.calculate_hands(self.player_hand, player)
+        self.calculate_hands(self.dealer_hand, dealer)
 
     # gui
 
@@ -185,6 +211,7 @@ class Play:
         dealer.total = 0
         self.message_log = [" ", " ", " ", " ", ]
         self.player = True
+        self.game_over = False
         self.initialise()
 
 
@@ -269,18 +296,19 @@ class Game:
                             pygame.quit()
                             sys.exit("Thanks for playing!")
 
-                # new game
-                if self.new_game:
+                # while possible to take action
+                if play.player:
                     if event.key == pygame.K_UP:
-                        play.get_card(play.player_hand)
                         play.message_log.insert(0, play.message_log_text[6])
                         play.message_log.pop()
+                        play.get_card(play.player_hand)
                     if event.key == pygame.K_DOWN:
-                        play.player_stay()
                         play.message_log.insert(0, play.message_log_text[3])
                         play.message_log.pop()
-                    if event.key == pygame.K_RIGHT:
-                        play.reset()
+                        play.player_stay()
+                # reset
+                if event.key == pygame.K_RIGHT:
+                    play.reset()
 
     # render all game objects
     def render(self):
