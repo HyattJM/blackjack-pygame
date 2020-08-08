@@ -16,18 +16,15 @@ class Card:
         self.image = image
         self.value = value
         self.soft_total = None
-        self.hard_total = None
 
     def is_ace(self, total):
         if total.total < 11:
             self.soft_total = True
-            self.hard_total = False
             total.total += 11
-        elif total.total > 11:
+        elif total.total >= 11:
             total.total += 1
         elif total.total > 21 and self.soft_total:
             self.soft_total = False
-            self.hard_total = True
             total.total -= 9
 
 
