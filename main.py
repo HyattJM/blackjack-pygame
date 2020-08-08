@@ -15,12 +15,20 @@ class Card:
     def __init__(self, image, value):
         self.image = image
         self.value = value
+        self.soft_total = None
+        self.hard_total = None
 
     def is_ace(self, total):
         if total.total < 11:
+            self.soft_total = True
+            self.hard_total = False
             total.total += 11
-        else:
+        elif total.total > 11:
             total.total += 1
+        elif total.total > 21 and self.soft_total:
+            self.soft_total = False
+            self.hard_total = True
+            total.total -= 9
 
 
 class Deck:
@@ -112,6 +120,9 @@ class Play:
                 total.total += hand[card].value
             # aces
             else:
+                pass
+        for card in range(len(hand)):
+            if not hand[card].value:
                 hand[card].is_ace(total)
 
         # player bust
@@ -250,7 +261,7 @@ class Game:
             3: "'23465789' are worth their face value.",
             4: "'JQK' = 10, 'A' = 1, 11 depending on best hand.",
             5: "Each player starts with two cards.",
-            6: "HIT gets another card, STAND keeps the hand you have.",
+            6: "HIT gets another card, STAY keeps the hand you have.",
             7: "If you go over 21 you BUST, and the dealer wins.",
             8: "2 card total of 21 equals BLACKJACK.",
             9: "Dealer plays until their cards total 17 or higher.",
