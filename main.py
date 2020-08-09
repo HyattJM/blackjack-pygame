@@ -20,12 +20,12 @@ class Card:
     def is_ace(self, total):
         if total.total < 11:
             self.soft_total = True
-            total.total += 11
+            total.update(11)
         elif total.total >= 11:
-            total.total += 1
+            total.update(1)
         elif total.total > 21 and self.soft_total:
             self.soft_total = False
-            total.total -= 9
+            total.update(-9)
 
 
 class Deck:
@@ -114,7 +114,7 @@ class Play:
         for card in range(len(hand)):
             # cards
             if hand[card].value:
-                total.total += hand[card].value
+                total.update(hand[card].value)
             # aces
             else:
                 pass
@@ -338,12 +338,12 @@ class Game:
                     self.how_to_play_text[text]), (x, y))
                 y += 45
             # display cards
-            x, y = 45, 500
+            x, y = 45, 600
             for suit in range(0, 2):
                 for card in self.deck.cards[suit]:
                     self.screen.blit(self.deck.cards[suit][card].image, (x, y))
                     x += 40
-            x, y = 45, 600
+            x, y = 45, 700
             for suit in range(2, 4):
                 for card in self.deck.cards[suit]:
                     self.screen.blit(self.deck.cards[suit][card].image, (x, y))
